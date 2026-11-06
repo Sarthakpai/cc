@@ -1,1484 +1,437 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IoT Lab Codes</title>
+<style>
+:root{--bg:#fff;--ink:#000;--ok:#1d8a4f}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--ink:#fff}}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+#grid{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px}
+button{padding:16px 0;border:2px solid var(--ink);border-radius:8px;background:var(--bg);color:var(--ink);font:600 18px system-ui,sans-serif;text-align:center;cursor:pointer}
+button:hover{background:var(--ink);color:var(--bg)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+button.done{background:var(--ok);border-color:var(--ok);color:#fff}
+</style>
 </head>
 <body>
-<textarea readonly spellcheck="false" style="width:100%;height:100vh;white-space:pre;font-family:monospace;">
-Machine Learning Programs
-
-1. For  a  given  set  of  training  data  examples  stored  in  a  .CSV file,  implement  and demonstrate  the  Candidate-Elimination       algorithm    to  output  a  description  of  the  set  of  all hypotheses Consistent  with  the  training  examples.
-
-
-
-import numpy as np
-import pandas as pd
-
-data = pd.DataFrame(data=pd.read_csv('/home/user/Documents/trainingdata.csv'))
-print(data)
-concepts = np.array(data.iloc[:,0:-1])
-print(concepts)
-
-target = np.array(data.iloc[:,-1])
-print(target)
-def learn(concepts, target):
-   
-    specific_h = concepts[0].copy()
-    print("\nInitialization of specific_h and general_h")
-    print(specific_h)
-    
-    general_h = [["?" for i in range(len(specific_h))] for i in range(len(specific_h))]
-    print(general_h)
-    for i, h in enumerate(concepts):
-        if target[i] == "Yes":
-            for x in range(len(specific_h)):
-                if h[x] != specific_h[x]:
-                    specific_h[x] = '?'
-                    general_h[x][x] = '?'
-
-        if target[i] == "No":
-            for x in range(len(specific_h)):
-                
-                if h[x] != specific_h[x]:
-                    general_h[x][x] = specific_h[x]
-                else:
-                    general_h[x][x] = '?'
-
-        print("\nSteps of Candidate Elimination Algorithm",i+1)
-        print(specific_h)
-        print(general_h)
-    
-    indices = [i for i, val in enumerate(general_h) if val == ['?', '?', '?', '?', '?', '?']]
-    for i in indices:
-        
-        general_h.remove(['?', '?', '?', '?', '?', '?'])
-   
-    return specific_h, general_h
-s_final, g_final = learn(concepts, target)
-print("\nFinal Specific_h:", s_final, sep="\n")
-print("\nFinal General_h:", g_final, sep="\n")
-
-
-
-
-
-OUTPUT:
-
-Initialization of specific_h and general_h
-['Sunny' 'Warm' 'Normal' 'Strong' 'Warm' 'Same']
-[['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?']]
-
-Steps of Candidate Elimination Algorithm 1
-['Sunny' 'Warm' 'Normal' 'Strong' 'Warm' 'Same']
-[['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?']]
-
-Steps of Candidate Elimination Algorithm 2
-['Sunny' 'Warm' '?' 'Strong' 'Warm' 'Same']
-[['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?']]
-
-Steps of Candidate Elimination Algorithm 3
-['Sunny' 'Warm' '?' 'Strong' 'Warm' 'Same']
-[['Sunny', '?', '?', '?', '?', '?'], ['?', 'Warm', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', 'Same']]
-
-Steps of Candidate Elimination Algorithm 4
-['Sunny' 'Warm' '?' 'Strong' '?' '?']
-[['Sunny', '?', '?', '?', '?', '?'], ['?', 'Warm', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?'], ['?', '?', '?', '?', '?', '?']]
-
-Final Specific_h:
-['Sunny' 'Warm' '?' 'Strong' '?' '?']
-
-Final General_h:
-[['Sunny', '?', '?', '?', '?', '?'], ['?', 'Warm', '?', '?', '?', '?']]
-
-
-
-
-
-
-
-
-
-2. Implement A* Search algorithm.
-
-
-import heapq
-GRID_SIZE = 10
-grid = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
-start = (0, 0)
-goal = (GRID_SIZE - 1, GRID_SIZE - 1)
-def heuristic(node, goal):
-    return abs(node[0] - goal[0]) + abs(node[1] - goal[1])
-
-def astar(grid, start, goal):
-    open_list = []
-    closed_list = set()
-
-    cost = {start: 0}
-    prev_node = {start: None}
-    heapq.heappush(open_list, (0, start))
-
-    while open_list:
-        current_cost, current_node = heapq.heappop(open_list)
-
-        if current_node == goal:
-            path = []
-            while current_node is not None:
-                path.append(current_node)
-                current_node = prev_node[current_node]
-            return path[::-1]
-        closed_list.add(current_node)
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            neighbor = (current_node[0] + dx, current_node[1] + dy)
-            if 0 <= neighbor[0] < GRID_SIZE and 0 <= neighbor[1] < GRID_SIZE:
-                if grid[neighbor[0]][neighbor[1]] == 0 and neighbor not in closed_list:
-                    neighbor_cost = cost[current_node] + 1
-
-                    if neighbor not in cost or neighbor_cost < cost[neighbor]:
-                        cost[neighbor] = neighbor_cost
-                        prev_node[neighbor] = current_node
-                        heapq.heappush(open_list, (neighbor_cost + heuristic(neighbor, goal), neighbor))
-
-    return None
-path = astar(grid, start, goal)
-
-if path is not None:
-    print("Path found:", path)
-else:
- print("No path found")
-
-
-OUTPUT:
-Path found: [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (9, 9)]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-3.Implement  A  python  program  to  implement  Simple  linear    regression  using  Least  Square  Method
-
-
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
-
-# Load the dataset
-hours_studied = np.array([2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
-exam_score = np.array([40, 50, 60, 70, 80, 90, 100, 110, 120, 130])
-
-# Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(hours_studied.reshape(-1, 1), exam_score, test_size=0.2, random_state=42)
-
-# Create a Simple Linear Regression model
-model = LinearRegression()
-
-# Train the model
-model.fit(X_train, y_train)
-
-# Make predictions
-y_pred = model.predict(X_test)
-
-# Evaluate the model's performance
-mse = mean_squared_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
-print(f'MSE: {mse:.2f}')
-print(f'R2: {r2:.2f}')
-
-
-
-OUTPUT:
-
-
-
-MSE: 0.00
-R2: 1.00
-
-
-
-
-
-4.Implement a decision tree algorithm for sales prediction/ classification in retail sector.
-
-
-
-import pandas as pd# Define the dataset
-X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-y = np.array([0, 1, 1, 0])
-
-# Define the learning rate and number of iterations
-learning_rate = 0.1
-num_iterations = 1000
-
-# Initialize the weights and bias randomly
-weights = np.random.rand(2)
-bias = np.random.rand(1)
-# Train the perceptron
-for i in range(num_iterations):
-    # Calculate the output of the perceptron
-    output = np.dot(X, weights) + bias
-    
-    # Apply the activation function (threshold function)
-    output = np.where(output > 0, 1, 0)
-    
-    # Calculate the error
-    error = y - output
-    
-    # Update the weights and bias
-    weights += learning_rate * np.dot(X.T, error)
-    bias += learning_rate * np.sum(error)
-# Test the perceptron
-test_X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-test_output = np.dot(test_X, weights) + bias
-test_output = np.where(test_output > 0, 1, 0)
-print("Test Output:", test_output)
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, classification_report
-
-data = {
-    "Customer_Segment": ["Gold", "Silver", "Bronze", "Gold", "Silver", "Bronze"],
-    "Product_Category": ["Electronics", "Clothing", "Food", "Home Decor", "Clothing", "Electronics"],
-    "Purchase_Amount": [50, 15, 80, 30, 20, 10],
-    "Promotion_Used": ["Yes", "No", "No", "Yes", "Yes", "No"],
-    "Sales_Target": ["High", "Medium", "Low", "Medium", "Medium", "Low"]
-}
-df = pd.DataFrame(data)
-
-df["Customer_Segment"] = pd.Categorical(df["Customer_Segment"]).codes
-df["Product_Category"] = pd.Categorical(df["Product_Category"]).codes
-df["Promotion_Used"] = pd.Categorical(df["Promotion_Used"]).codes
-
-# Separate features and target variable
-X = df[["Customer_Segment", "Product_Category", "Purchase_Amount", "Promotion_Used"]]
-y = df["Sales_Target"]
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-model = DecisionTreeClassifier()
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
-
-print("Accuracy:", accuracy_score(y_test, y_pred))
-print(classification_report(y_test, y_pred))
-
-
-OUTPUT:
-
-
-Accuracy: 0.5
-              precision    recall  f1-score   support
-
-        High       0.00      0.00      0.00         1
-      Medium       0.50      1.00      0.67         1
-
-    accuracy                           0.50         2
-   macro avg       0.25      0.50      0.33         2
-weighted avg       0.25      0.50      0.33         2
-
-
-
-
-
-
-
-
-
-
-5. Implement back propagation algorithm  for  stock  prices  prediction
-
-
-import numpy as np
-X = np.array(([2, 9], [1, 5], [3, 6]), dtype=float)
-y = np.array(([92], [86], [89]), dtype=float)
-X = X / np.amax(X, axis=0)  
-y = y / 100
-# Sigmoid Function
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-def derivatives_sigmoid(x):
-    return x * (1 - x)
-
-epoch = 5000  
-lr = 0.1  
-inputlayer_neurons = 2  
-hiddenlayer_neurons = 3  
-output_neurons = 1  
-wh = np.random.uniform(size=(inputlayer_neurons, hiddenlayer_neurons))
-bh = np.random.uniform(size=(1, hiddenlayer_neurons))
-wout = np.random.uniform(size=(hiddenlayer_neurons, output_neurons))
-bout = np.random.uniform(size=(1, output_neurons))
-
-for i in range(epoch):
-   
-    hinp1 = np.dot(X, wh)
-    hinp = hinp1 + bh
-    hlayer_act = sigmoid(hinp)
-    outinp1 = np.dot(hlayer_act, wout)
-    outinp = outinp1 + bout
-    output = sigmoid(outinp)
-    
-    EO = y - output
-    outgrad = derivatives_sigmoid(output)
-    d_output = EO * outgrad
-    EH = d_output.dot(wout.T)
-    
-    hiddengrad = derivatives_sigmoid(hlayer_act)
-    d_hiddenlayer = EH * hiddengrad
-    wout += hlayer_act.T.dot(d_output) * lr  
-    wh += X.T.dot(d_hiddenlayer) * lr
-    
-    print("Input: \n" + str(X))
-print("Actual Output: \n" + str(y))
-print("Predicted Output: \n", output)
-
-
-
-
-
-OUTPUT:
-
-
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-Input:
-[[0.66666667 1.        ]
- [0.33333333 0.55555556]
- [1.         0.66666667]]
-
-6. Implement A python program to implement single layer perceptron.
-
-import numpy as np
-X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-y = np.array([0, 1, 1, 0])
-learning_rate = 0.1
-num_iterations = 1000
-weights = np.random.rand(2)
-bias = np.random.rand(1)
-for i in range(num_iterations):
-    output = np.dot(X, weights) + bias
-    output = np.where(output > 0, 1, 0)
-    error = y - output
-    weights += learning_rate * np.dot(X.T, error)
-    bias += learning_rate * np.sum(error)
-test_X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-test_output = np.dot(test_X, weights) + bias
-test_output = np.where(test_output > 0, 1, 0)
-print("Test Output:", test_output)
-
-
-OUTPUT:
-
-Test Output: [1 1 1 1]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-7. Write  a  program  to  construct  a  Bayesian  network  considering  medical  data.  Use  this  model  to  demonstrate  the  diagnosis of      heart  patients  using  standard  Heart  Disease  Data  Set.  You can use Java/Python ML library classes/API.
-
-
-
-
-import pandas as pd
-data=pd.read_csv("/home/user/Documents/heartdisease.csv")
-heart_disease=pd.DataFrame(data)
-print(heart_disease)
-from pgmpy.models import BayesianModel
-model=BayesianModel([
-('age','Lifestyle'),
-('Gender','Lifestyle'),
-('Family','heartdisease'),
-('diet','cholestrol'),
-('Lifestyle','diet'),
-('cholestrol','heartdisease'),
-('diet','cholestrol')])
-from pgmpy.estimators import MaximumLikelihoodEstimator
-model.fit(heart_disease, estimator=MaximumLikelihoodEstimator)
-
-from pgmpy.inference import VariableElimination
-HeartDisease_infer = VariableElimination(model)
-print('For age Enter { SuperSeniorCitizen:0, SeniorCitizen:1, MiddleAged:2, Youth:3, Teen:4 }')
-print('For Gender Enter { Male:0, Female:1 }')
-print('For Family History Enter { yes:1, No:0 }')
-print('For diet Enter { High:0, Medium:1 }')
-print('For lifeStyle Enter { Athlete:0, Active:1, Moderate:2, Sedentary:3 }')
-print('For cholesterol Enter { High:0, BorderLine:1, Normal:2 }')
-
-q = HeartDisease_infer.query(variables=['heartdisease'], evidence={
-    'age':int(input('Enter age :')),
-    'Gender':int(input('Enter Gender :')),
-    'Family':int(input('Enter Family history :')),
-    'diet':int(input('Enter diet :')),
-    'Lifestyle':int(input('Enter Lifestyle :')),
-    'cholestrol':int(input('Enter cholestrol :'))
-    })
-
-print(q['heartdisease'])
-
-
-
-
-
-
-
-
-
-OUTPUT:
-
-
-   age  Gender  Family  diet  Lifestyle  cholestrol  heartdisease
-0     0       0       1     1          3           0             1
-1     0       1       1     1          3           0             1
-2     1       0       0     0          2           1             1
-3     4       0       1     1          3           2             0
-4     3       1       1     0          0           2             0
-5     2       0       1     1          1           0             1
-6     4       0       1     0          2           0             1
-7     0       0       1     1          3           0             1
-8     3       1       1     0          0           2             0
-9     1       1       0     0          0           2             1
-10    4       1       0     1          2           0             1
-11    4       0       1     1          3           2             0
-12    2       1       0     0          0           0             0
-13    2       0       1     1          1           0             1
-14    3       1       1     0          0           1             0
-15    0       0       1     0          0           2             1
-16    1       1       0     1          2           1             1
-17    3       1       1     1          0           1             0
-18    4       0       1     1          3           2             0
-/home/user/anaconda3/lib/python3.9/site-packages/pgmpy/models/BayesianModel.py:8: FutureWarning: BayesianModel has been renamed to BayesianNetwork. Please use BayesianNetwork class, BayesianModel will be removed in future.
-  warnings.warn(
-For age Enter { SuperSeniorCitizen:0, SeniorCitizen:1, MiddleAged:2, Youth:3, Teen:4 }
-For Gender Enter { Male:0, Female:1 }
-For Family History Enter { yes:1, No:0 }
-For diet Enter { High:0, Medium:1 }
-For lifeStyle Enter { Athlete:0, Active:1, Moderate:2, Sedentary:3 }
-For cholesterol Enter { High:0, BorderLine:1, Normal:2 }
-Enter age :
-
-
-
-
-
-
-
-
-
-
-8. a)  Implement Random Forest ensemble method on a given dataset.  
-    b)  Implement  Boosting  ensemble  method  on  a  given  dataset
-
-
-a)  Implement Random Forest ensemble method on a given dataset.  
-
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import load_iris
-from sklearn.metrics import accuracy_score, classification_report
-
-# Load the Iris dataset
-iris = load_iris()
-X = iris.data
-y = iris.target
-
-# Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-# Create a Random Forest classifier
-rf = RandomForestClassifier(n_estimators=100, random_state=42)
-
-# Train the classifier
-rf.fit(X_train, y_train)
-
-# Make predictions on the testing set
-y_pred = rf.predict(X_test)
-
-# Evaluate the classifier
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy:", accuracy)
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
-
-
-OUTPUT:
-
-Accuracy: 1.0
-Classification Report:
-              precision    recall  f1-score   support
-
-           0       1.00      1.00      1.00        10
-           1       1.00      1.00      1.00         9
-           2       1.00      1.00      1.00        11
-
-    accuracy                           1.00        30
-   macro avg       1.00      1.00      1.00        30
-weighted avg       1.00      1.00      1.00        30
-
-
-
-
-b)  Implement  Boosting  ensemble  method  on  a  given  dataset.
-
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import load_iris
-from sklearn.metrics import accuracy_score, classification_report
-
-# Load the Iris dataset
-iris = load_iris()
-X = iris.data
-y = iris.target
-
-# Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Create an AdaBoost classifier
-abc = AdaBoostClassifier(n_estimators=100, random_state=42)
-# Train the classifier
-abc.fit(X_train, y_train)
-# Make predictions on the testing set
-y_pred = abc.predict(X_test)
-
-# Evaluate the classifier
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy:", accuracy)
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
-
-
-
-OUTPUT:
-
-Accuracy: 0.9333333333333333
-Classification Report:
-              precision    recall  f1-score   support
-
-           0       1.00      1.00      1.00        10
-           1       0.89      0.89      0.89         9
-           2       0.91      0.91      0.91        11
-
-    accuracy                           0.93        30
-   macro avg       0.93      0.93      0.93        30
-weighted avg       0.93      0.93      0.93        30
-
-
-9. Apply  EM  algorithm  to  cluster  a  set  of  data  stored  in  a  .CSV  file. Use the same dataset for clustering using k Means algorithm. Compare the results of these two algorithms and comment on the quality of clustering. You can add Java/Python ML library classes/API in the program.
-
-
-from sklearn.cluster import KMeans
-from sklearn import preprocessing
-from sklearn.mixture import GaussianMixture
-from sklearn.datasets import load_iris
-import sklearn.metrics as sm
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-dataset=load_iris()
-# print(dataset)
-X=pd.DataFrame(dataset.data)
-X.columns=['Sepal_Length','Sepal_Width','Petal_Length','Petal_Width']
-y=pd.DataFrame(dataset.target)
-y.columns=['Targets']
-# print(X)
-plt.figure(figsize=(14,7))
-colormap=np.array(['red','lime','black'])
-
-# REAL PLOT
-plt.subplot(1,3,1)
-plt.scatter(X.Petal_Length,X.Petal_Width,c=colormap[y.Targets],s=40)
-plt.title('Real')
-
-# K-PLOT
-plt.subplot(1,3,2)
-model=KMeans(n_clusters=3)
-model.fit(X)
-predY=np.choose(model.labels_,[0,1,2]).astype(np.int64)
-plt.scatter(X.Petal_Length,X.Petal_Width,c=colormap[predY],s=40)
-plt.title('KMeans')
-scaler=preprocessing.StandardScaler()
-scaler.fit(X)
-xsa=scaler.transform(X)
-xs=pd.DataFrame(xsa,columns=X.columns)
-gmm=GaussianMixture(n_components=3)
-gmm.fit(xs)
-y_cluster_gmm=gmm.predict(xs)
-plt.subplot(1,3,3)
-plt.scatter(X.Petal_Length,X.Petal_Width,c=colormap[y_cluster_gmm],s=40)
-plt.title('GMM Classification')
-
-
-
-
-
-OUTPUT:
-
-
-Text(0.5, 1.0, 'GMM Classification')
- 
-
-
-
-
-10. Write a program to implement k-Nearest Neighbor algorithm to classify the iris data set. Print both correct and wrong predictions.  Java/Python ML library classes can be used for this problem.
-
-
-
-
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, classification_report
-
-iris = load_iris()
-X = iris.data
-y = iris.target
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-knn = KNeighborsClassifier(n_neighbors=5)
-
-knn.fit(X_train, y_train)
-
-y_pred = knn.predict(X_test)
-
-print("Correct Predictions:")
-for i in range(len(y_test)):
-    if y_test[i] == y_pred[i]:
-        print(f"Sample {i+1}: Actual={y_test[i]}, Predicted={y_pred[i]}")
-
-print("\nWrong Predictions:")
-for i in range(len(y_test)):
-    if y_test[i] != y_pred[i]:
-        print(f"Sample {i+1}: Actual={y_test[i]}, Predicted={y_pred[i]}")
-
-accuracy = accuracy_score(y_test, y_pred)
-print("\nAccuracy:", accuracy)
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
-
-
-
-
-
-
-
-
-
-
-
-
-OUTPUT:
-
-
-Correct Predictions:
-Sample 1: Actual=1, Predicted=1
-Sample 2: Actual=0, Predicted=0
-Sample 3: Actual=2, Predicted=2
-Sample 4: Actual=1, Predicted=1
-Sample 5: Actual=1, Predicted=1
-Sample 6: Actual=0, Predicted=0
-Sample 7: Actual=1, Predicted=1
-Sample 8: Actual=2, Predicted=2
-Sample 9: Actual=1, Predicted=1
-Sample 10: Actual=1, Predicted=1
-Sample 11: Actual=2, Predicted=2
-Sample 12: Actual=0, Predicted=0
-Sample 13: Actual=0, Predicted=0
-Sample 14: Actual=0, Predicted=0
-Sample 15: Actual=0, Predicted=0
-Sample 16: Actual=1, Predicted=1
-Sample 17: Actual=2, Predicted=2
-Sample 18: Actual=1, Predicted=1
-Sample 19: Actual=1, Predicted=1
-Sample 20: Actual=2, Predicted=2
-Sample 21: Actual=0, Predicted=0
-Sample 22: Actual=2, Predicted=2
-Sample 23: Actual=0, Predicted=0
-Sample 24: Actual=2, Predicted=2
-Sample 25: Actual=2, Predicted=2
-Sample 26: Actual=2, Predicted=2
-Sample 27: Actual=2, Predicted=2
-Sample 28: Actual=2, Predicted=2
-Sample 29: Actual=0, Predicted=0
-Sample 30: Actual=0, Predicted=0
-
-Wrong Predictions:
-
-Accuracy: 1.0
-Classification Report:
-              precision    recall  f1-score   support
-
-           0       1.00      1.00      1.00        10
-           1       1.00      1.00      1.00         9
-           2       1.00      1.00      1.00        11
-
-    accuracy                           1.00        30
-   macro avg       1.00      1.00      1.00        30
-weighted avg       1.00      1.00      1.00        30
-
-
-
-    
-PROGRAM 5
-//EmployeeController.java (Class)
-package com.mvjce.prgm5.controller;
-
-import java.util.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.validation.*;
-import org.springframework.web.bind.annotation.*;
-import com.mvjce.prgm5.jparepository.EmployeeRepository;
-import com.mvjce.prgm5.model.Employee;
-import jakarta.validation.Valid;
-
-@RestController
-@RequestMapping("/api/employees")
-public class EmployeeController {
-
-@Autowired
-private EmployeeRepository employeeRepository;
-
-@PostMapping
-public ResponseEntity<?> createEmployee(@Valid @RequestBody Employee employee, BindingResult result) {
-if (result.hasErrors()) {
-Map<String, String> errors = new HashMap<>();
-for (FieldError error : result.getFieldErrors()) {
-errors.put(error.getField(), error.getDefaultMessage());
-}
-return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-}
-Employee savedEmployee = employeeRepository.save(employee);
-return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
+<div id="grid"></div>
+<script>
+const E=[
+{id:"1a",n:"1A",t:"Blink 2 LEDs alternately at a given duty cycle",p:"LED1 → 220Ω → pin 6, LED2 → 220Ω → pin 7, cathodes → GND",c:`void setup() {
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
 }
 
-@PutMapping("/{id}")
-BindingResult result) {
-if (result.hasErrors()) {
-Map<String, String> errors = new HashMap<>();
-for (FieldError error : result.getFieldErrors()) {
-errors.put(error.getField(), error.getDefaultMessage());
-}
-return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-}
-return employeeRepository.findById(id).map(existingEmployee -> {
-existingEmployee.setName(employee.getName());
-existingEmployee.setAge(employee.getAge());
-existingEmployee.setEmail(employee.getEmail());
-Employee updatedEmployee = employeeRepository.save(existingEmployee);
-return new ResponseEntity<>(updatedEmployee, HttpStatus.OK);
-}).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+void loop() {
+  digitalWrite(6, HIGH);
+  digitalWrite(7, LOW);
+  delay(500);
+  digitalWrite(7, HIGH);
+  digitalWrite(6, LOW);
+  delay(500);
+}`},
+{id:"1b",n:"1B",t:"LED ON/OFF using micro-switch, status on Serial Monitor",p:"LED → 220Ω → pin 7, switch → pin 5 (10kΩ pull-down to GND, other side to 5V)",c:`#define LED_PIN 7
+#define MICROSWITCH_PIN 5
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(MICROSWITCH_PIN, INPUT);
+  Serial.begin(9600);
 }
 
-@GetMapping
-public List<Employee> getAllEmployees() {
-return employeeRepository.findAll();
-}
-}
-
-----------------------
-//EmployeeRepository.java (Interface)
-package com.mvjce.prgm5.jparepository;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import com.mvjce.prgm5.model.Employee;
-public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-
-}
-
-----------------------
-//Employee.java (Class)
-package com.mvjce.prgm5.model;public ResponseEntity<?> updateEmployee(@PathVariable Long id, @Valid @RequestBody Employee employee,
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-
-@Entity
-@Table(name = "employees")
-public class Employee {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private Long id;
-
-@NotEmpty(message = "Name is required")
-@Size(min = 2, message = "Name should have at least 2 characters")
-private String name;
-
-@NotNull(message = "Age is required")
-private Integer age;
-
-@NotEmpty(message = "Email is required")
-@Email(message = "Email should be valid")
-private String email;
-
-public Long getId() {
-return id;
+void loop() {
+  if (digitalRead(MICROSWITCH_PIN) == HIGH) {
+    digitalWrite(LED_PIN, HIGH);
+    Serial.println(1);
+  }
+  else {
+    digitalWrite(LED_PIN, LOW);
+    Serial.println(0);
+  }
+}`},
+{id:"1c",n:"1C",t:"LED ON/OFF only through Serial Monitor",p:"LED → 220Ω → pin 7. Type 1 for ON, 2 for OFF in the Serial Monitor",c:`void setup() {
+  pinMode(7, OUTPUT);
+  Serial.begin(9600);
+  while (!Serial);
+  Serial.println("Input 1 to Turn LED on and 2 to off");
 }
 
-public void setId(Long id) {
-this.id = id;
-}
-
-public String getName() {
-return name;
-}
-
-public void setName(String name) {
-this.name = name;
-}
-
-public Integer getAge() {
-return age;
-}
-
-public void setAge(Integer age) {
-this.age = age;
-}
-
-public String getEmail() {
-return email;
-}
-
-public void setEmail(String email) {
-this.email = email;
-}
-}
-
-----------------------
-//application.properties
-spring.application.name=prgm5
-
-server.port=8080
-# Database URL
-spring.datasource.url=jdbc:mysql://localhost:3306/prgm5?useSSL=false&serverTimezone=UTC
-
-# Database Username
-spring.datasource.username=
-
-# Database Password
-spring.datasource.password=
-
-# Hibernate Properties
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
-
-# Connection Pooling (Optional)
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-
------------------------------------------------------------------------------------------------------------------------
-
-PROGRAM 6: 
-Write a Java application using Hibernate to insert data into Student DATABASE and retrieve info based on particular queries (For example update, delete, search etc...)
-Required Dependencies:
-1. Spring Data JPA
-2. MySQL Driver
-//Application.java
-//src/main/java -> com.mvjce.prgm6 -> Application.java (Class)
-package com.mvjce.prgm6;
-import com.mvjce.prgm6.entity.Student1;
-import com.mvjce.prgm6.entity.StudentManager;
-public class Application {
-public static void main(String[] args) {
-StudentManager manager = new StudentManager();
-Student1 stud = new Student1();
-stud.setId(12);
-stud.setName("Alvin");
-stud.setAge(21);
-manager.insertStudent(stud);
-Student1 foundStudent = manager.searchStudentById(12);
-if (foundStudent != null) {
-System.out.println("Found Student: " + foundStudent.getName() + ",
-Age: " + foundStudent.getAge());
-}
-manager.updateStudentAge(22, 22);
-manager.deleteStudent(22);
-==================================================
-//Student1.java
-//src/main/java -> com.mvjce.prgm6.entity -> Student1.java (Class)
-package com.mvjce.prgm6.entity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-@Entity
-public class Student1 {
-@Id
-private int id;
-private String name;
-private int age;
-public int getId() {
-return id;
-}
-public void setId(int id) {
-this.id = id;
-}
-public String getName() {
-return name;
-}
-public void setName(String name) {
-this.name = name;
-}
-public int getAge() {
-return age;
-}
-public void setAge(int age) {
-this.age = age;
-}
-}
-==================================================
-//StudentManager.java
-//src/main/java -> com.mvjce.prgm6.entity -> StudentManager.java (Class)
-package com.mvjce.prgm6.entity;
-import org.hibernate.Session;
-import com.mvjce.prgm6.util.HibernateUtil;
-public class StudentManager {
-public void insertStudent(Student1 student) {
-
-try (Session session = HibernateUtil.getSession()) {
-session.beginTransaction();
-session.persist(student);
-session.getTransaction().commit();
-}
-}
-public Student1 searchStudentById(int id) {
-try (Session session = HibernateUtil.getSession()) {
-return session.get(Student1.class, id);
-}
-}
-public void updateStudentAge(int id, int newAge) {
-try (Session session = HibernateUtil.getSession()) {
-session.beginTransaction();
-Student1 student = session.get(Student1.class, id);
-if (student != null) {
-student.setAge(newAge);
-session.merge(student);
-session.getTransaction().commit();
-}
-}
-}
-public void deleteStudent(int id) {
-try (Session session = HibernateUtil.getSession()) {
-session.beginTransaction();
-Student1 student = session.get(Student1.class, id);
-if (student != null) {
-session.remove(student);
-session.getTransaction().commit();
-}
-}
-}
-}
-==================================================
-//HibernateUtil.java
-//src/main/java -> com.mvjce.prgm6.util -> HibernateUtil.java (Class)
-package com.mvjce.prgm6.util;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import com.mvjce.prgm6.entity.Student1;
-public class HibernateUtil {
-private static SessionFactory sessionFactory;
-static {
-try {
-sessionFactory = new Configuration()
-.configure("hibernate.cfg.xml")
-.addAnnotatedClass(Student1.class)
-.buildSessionFactory();
-} catch (Exception e) {
-e.printStackTrace();
-}
-}
-public static org.hibernate.Session getSession() {
-return sessionFactory.openSession();
-}
-}
-==================================================
-//hibernate.cfg.xml
-//src/main/resources -> hibernate.cfg.xml (New File > XML)
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-configuration PUBLIC
-"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
-<hibernate-configuration>
-<session-factory>
-<property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</
-property>
-<property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/pgm6</
-property>
-<property name="hibernate.connection.username">root</property>
-<property name="hibernate.connection.password">password</property>
-<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
-<property name="hibernate.show_sql">true</property>
-<property name="hibernate.format_sql">true</property>
-<property name="hibernate.hbm2ddl.auto">update</property>
-<mapping class="com.mvjce.prgm6.entity.Student1" />
-</session-factory>
-</hibernate-configuration>
-==================================================================================
-
-
-PROGRAM 7
-Demonstrate Spring Data JPA integration in a Spring Boot application using Hibernate
-Required Dependencies:
-1. Spring Web
-2. Spring Data JPA
-3. MySQL Driver
-//StudentController.java
-//src/main/java -> com.mvjce.prgm7.controller -> StudentController.java (Class)
-package com.mvjce.prgm7.controller;
-import com.mvjce.prgm7.entity.Student;
-import com.mvjce.prgm7.service.StudentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-@RestController
-@RequestMapping("/students")
-public class StudentController {
-@Autowired
-private StudentService studentService;
-@GetMapping
-public List<Student> getAllStudents() {
-return studentService.getAllStudents();
-}
-@PostMapping
-public Student createStudent(@RequestBody Student student) {
-return studentService.saveStudent(student);
-}
-@GetMapping("/{id}")
-public Student getStudent(@PathVariable Long id) {
-return studentService.getStudent(id);
-}
-@DeleteMapping("/{id}")
-public void deleteStudent(@PathVariable Long id) {
-studentService.deleteStudent(id);
-}
-}
-==================================================
-//Student.java
-//src/main/java -> com.mvjce.prgm7.entity -> Student.java (Class)
-package com.mvjce.prgm7.entity;
-import jakarta.persistence.*;
-@Entity
-@Table(name = "students")
-public class Student {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private Long id;
-private String name;
-private String age;
-private String email;
-public Long getId() {
-return id;
-}
-public void setId(Long id) {
-this.id = id;
-}
-public String getName() {
-return name;
-}
-public void setName(String name) {
-this.name = name;
-}
-public String getAge() {
-return age;
-}
-public void setAge(String age) {
-this.age = age;
-}
-public String getEmail() {
-return email;
-}
-public void setEmail(String email) {
-this.email = email;
-}
-}
-==================================================
-//StudentRepository.java
-//src/main/java -> com.mvjce.prgm7.repository -> StudentRepository.java (Interface > Extends
-JPARepository)
-package com.mvjce.prgm7.repository;
-import org.springframework.data.jpa.repository.JpaRepository;
-import com.mvjce.prgm7.entity.Student;
-public interface StudentRepository extends JpaRepository<Student, Long> {
-}
-==================================================
-//StudentService.java
-//src/main/java -> com.mvjce.prgm7.service -> StudentService.java (Class)
-package com.mvjce.prgm7.service;
-import com.mvjce.prgm7.entity.Student;
-import com.mvjce.prgm7.repository.StudentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.List;
-@Service
-public class StudentService {
-@Autowired
-private StudentRepository studentRepository;
-public List<Student> getAllStudents() {
-return studentRepository.findAll();
-}
-public Student saveStudent(Student student) {
-return studentRepository.save(student);
-}
-public Student getStudent(Long id) {
-return studentRepository.findById(id).orElse(null);
-}
-public void deleteStudent(Long id) {
-studentRepository.deleteById(id);
-}
-==================================================
-//application.properties
-//src/main/resources -> application.properties
-spring.datasource.url=jdbc:mysql://localhost:3306/studentdb
-spring.datasource.username=root
-spring.datasource.password=password
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
-server.port=8080
-logging.level.org.springframework.framework=DEBUG
-==================================================================================
-
-
-PROGRAM 8:
- Demonstrate using Spring Boot: Complete the docker setup on your Sandbox.
-− Download a docker image from Docker Hub and deploy the same on your docker
-server
-− Build a sample custom image for any of the App of your choice and run the app
-image as a container
-
-Step 1: Install Docker
-If you haven't already, install Docker on your sandbox environment. You can download the Docker installer
-from the official Docker website.
-
-Step 2: Pull a Docker Image from Docker Hub
-Open a terminal and run the following command to pull the official MySQL Docker image from Docker Hub:
-docker pull mysql:latest
-This will download the latest MySQL Docker image from Docker Hub.
-
-Step 3: Run the MySQL Container
-Run the following command to start a new container from the MySQL image:
-docker run -d --name mysql-server -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 mysql:latest
-This will start a new container named "mysql-server" and map port 3306 on the host machine to port 3306 in
-the container.
-
-Step 4: Create a Spring Boot Application
-Create a new Spring Boot application using your preferred method, such as using Spring Initializr or manually
-creating the project structure.
-
-Step 5: Create a Dockerfile
-Create a new file named "Dockerfile" in the root directory of your Spring Boot project. Add the following
-contents to the file:
-FROM openjdk:8-jdk-alpine
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
-This Dockerfile uses the official OpenJDK 8 image as a base, copies the Spring Boot application JAR file into
-the container, and sets the entrypoint to run the JAR file using Java.
-
-Step 6: Build the Docker Image
-Run the following command to build the Docker image:
-docker build -t my-spring-boot-app .
-This will create a new Docker image with the name "my-spring-boot-app".
-
-Step 7: Run the Docker Container
-Run the following command to start a new container from the "my-spring-boot-app" image:
-docker run -d --name my-spring-boot-app -p 8080:8080 my-spring-boot-app
-This will start a new container named "my-spring-boot-app" and map port 8080 on the host machine to port
-8080 in the container.
-
-Step 8: Verify the Application
-Open a web browser and navigate to http://localhost:8080 to verify that the Spring Boot application is running
-correctly.
-
-That's it! You have now demonstrated the use of Docker with Spring Boot by building a custom Docker image
-and running it as a container
-
-8)package com.example.prgm8.controller;
-
-  import org.springframework.web.bind.annotation.GetMapping;
-  import org.springframework.web.bind.annotation.RequestMapping;
-  import org.springframework.web.bind.annotation.RestController;
-
-  @RestController
-  @RequestMapping("/api")
-  public class HelloController {
-
-    @GetMapping("/hello")
-     public String sayHello() {
-     return "Hello from Spring Boot docker!";
+void loop() {
+  if (Serial.available()) {
+    int state = Serial.parseInt();
+    if (state == 1) {
+      digitalWrite(7, HIGH);
+      Serial.println("Command completed LED turned ON");
     }
-
-   }
-
-    Dockerfile 
-FROM eclipse-temurin:17-jdk-alphine
-
-WORKDIR /app
-
-COPY target/prgm8-0.0.1-SNAPSHOT.jar app.jar
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
-commands to run
-In the Goals section, type: clean package -DskipTests
-docker build -t prgm8 .
-docker run -p 8080:8080 prgm8
-to run http://localhost:8080/api/hello
-#######################################################################
-FOR ALL PROGRAMS 
-DEPENDENCIES : WEB,JPA,VALIDATION,H2
-
-
-package : lab.controller 
-class : StudentController 
-
-package com.example.lab.controller;
-
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
-import com.example.lab.entity.Student;
-import com.example.lab.repository.StudentRepository;
-
-import jakarta.validation.Valid;
-
-@RestController
-@RequestMapping("/students")
-public class StudentController {
-
-    @Autowired
-    private StudentRepository repo;
-
-    // INSERT
-    @PostMapping
-    public Object addStudent(@Valid @RequestBody Student s,
-                             BindingResult result) {
-
-        if(result.hasErrors()) {
-            return result.getAllErrors().get(0).getDefaultMessage();
-        }
-
-        return repo.save(s);
+    if (state == 2) {
+      digitalWrite(7, LOW);
+      Serial.println("Command completed LED turned OFF");
     }
+  }
+}`},
+{id:"2a",n:"2A",t:"Auto fading of LED brightness through PWM",p:"LED → 220Ω → pin 9 (PWM pin)",c:`int led = 9;
+int brightness = 0;
+int fadeAmount = 5;
 
-    // SELECT
-    @GetMapping("/{id}")
-    public Optional<Student> getStudent(@PathVariable int id) {
-        return repo.findById(id);
-    }
-
-    // UPDATE
-    @PutMapping("/{id}")
-    public Object updateStudent(@PathVariable int id,
-                                @Valid @RequestBody Student s,
-                                BindingResult result) {
-
-        if(result.hasErrors()) {
-            return result.getAllErrors().get(0).getDefaultMessage();
-        }
-
-        Student st = repo.findById(id).get();
-
-        st.setName(s.getName());
-        st.setAge(s.getAge());
-        st.setEmail(s.getEmail());
-
-        return repo.save(st);
-    }
-
-    // DELETE
-    @DeleteMapping("/{id}")
-    public String deleteStudent(@PathVariable int id) {
-
-        repo.deleteById(id);
-
-        return "Deleted Successfully";
-    }
+void setup() {
+  pinMode(led, OUTPUT);
 }
 
-PACKAGE : lab.entity
-CLASS : Student.java
+void loop() {
+  analogWrite(led, brightness);
+  brightness = brightness + fadeAmount;
+  if (brightness == 0 || brightness == 125) {
+    fadeAmount = -fadeAmount;
+  }
+  delay(200);
+}`},
+{id:"2b",n:"2B",t:"LED fading using potentiometer, POT value on Serial Monitor",p:"POT: ends → 5V and GND, wiper → A0. LED → 220Ω → pin 9",c:`int potPin = A0;
+int gPin = 9;
+int potVal;
+float LEDVal;
 
-package com.example.lab.entity;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-
-@Entity
-public class Student {
-
-    @Id
-    private int id;
-
-    @NotEmpty(message = "Name is required")
-    private String name;
-
-    @NotNull(message = "Age is required")
-    private Integer age;
-
-    @Email(message = "Enter valid email")
-    private String email;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+void setup() {
+  pinMode(potPin, INPUT);
+  pinMode(gPin, OUTPUT);
+  Serial.begin(9600);
 }
 
- PACKAGE : lab.repository
-INTERFACE: StudentRepository
-
-package com.example.lab.repository;
-
-import org.springframework.data.repository.CrudRepository;
-
-import com.example.lab.entity.Student;
-
-public interface StudentRepository extends CrudRepository<Student, Integer> {
-
+void loop() {
+  potVal = analogRead(potPin);
+  LEDVal = (255. / 1023.) * potVal;
+  analogWrite(gPin, LEDVal);
+  delay(500);
+  Serial.println(LEDVal);
+}`},
+{id:"3a",n:"3A",t:"Traffic light simulation",p:"Red → 220Ω → pin 7, Yellow → 220Ω → pin 6, Green → 220Ω → pin 5. Note: the manual code uses pin 5 first, so it lights the green LED first",c:`void setup() {
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
 }
-PACKAGE : lab.service
-CLASS : App
 
-package com.example.lab.service;
+void loop() {
+  digitalWrite(5, HIGH);
+  digitalWrite(6, LOW);
+  digitalWrite(7, LOW);
+  delay(4500);
 
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+  digitalWrite(5, LOW);
+  digitalWrite(6, HIGH);
+  digitalWrite(7, LOW);
+  delay(2000);
 
-@Component
-public class App implements CommandLineRunner {
+  digitalWrite(5, LOW);
+  digitalWrite(6, LOW);
+  digitalWrite(7, HIGH);
+  delay(2800);
+}`},
+{id:"3b",n:"3B",t:"4 LEDs chasing pattern back and forth",p:"4 LEDs → 220Ω each → pins 4, 5, 6, 7, cathodes → GND",c:`void setup() {
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+}
 
-    @Override
-    public void run(String... args) throws Exception {
+void loop() {
+  digitalWrite(4, HIGH);
+  delay(100);
+  digitalWrite(5, HIGH);
+  delay(100);
+  digitalWrite(6, HIGH);
+  delay(100);
+  digitalWrite(7, HIGH);
+  delay(100);
+  digitalWrite(7, LOW);
+  delay(100);
+  digitalWrite(6, LOW);
+  delay(100);
+  digitalWrite(5, LOW);
+  delay(100);
+  digitalWrite(4, LOW);
+  delay(100);
+}`},
+{id:"3c",n:"3C",t:"Decade UP/DOWN counter (4 LEDs as binary)",p:"LEDs → 220Ω → pins 2 (1), 3 (2), 4 (4), 5 (8), cathodes → GND. Compact version of the manual code: same output (1 to 9, reset, 9 to 1, reset)",c:`int pins[4] = {2, 3, 4, 5}; // bit0, bit1, bit2, bit3
 
-        System.out.println("CRUD Operations Ready");
+void show(int n) {
+  for (int b = 0; b < 4; b++) {
+    digitalWrite(pins[b], (n >> b) & 1);
+  }
+  delay(1000);
+}
+
+void setup() {
+  for (int b = 0; b < 4; b++) pinMode(pins[b], OUTPUT);
+}
+
+void loop() {
+  for (int n = 1; n <= 9; n++) show(n); // UP count
+  show(0);                              // reset
+  for (int n = 9; n >= 1; n--) show(n); // DOWN count
+  show(0);                              // reset
+}`},
+{id:"4",n:"4",t:"Obstacle detector using IR module with LED and buzzer",p:"IR: VCC → 5V, GND → GND, OUT → A0. Green LED → 220Ω → pin 7, Red LED + buzzer → 220Ω → pin 5",c:`void setup() {
+  Serial.begin(9600);
+  pinMode(5, OUTPUT);
+  pinMode(7, OUTPUT);
+}
+
+void loop() {
+  int v = analogRead(A0); // v means value
+  Serial.println(v);
+  delay(300);
+  if (v < 260) {
+    digitalWrite(7, LOW);
+    digitalWrite(5, HIGH);
+    delay(300);
+    Serial.println("MOTION DETECTED");
+    digitalWrite(5, LOW);
+  }
+  else {
+    digitalWrite(5, LOW);
+    digitalWrite(7, HIGH);
+  }
+}`},
+{id:"5",n:"5",t:"Lamp control through relay using LDR module",p:"LDR module: VCC → 5V, GND → GND, AO → A0. LED/relay → pin 8 (LED via 220Ω)",c:`void setup() {
+  pinMode(8, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int a = analogRead(A0);
+  Serial.println(a);
+  if (a >= 400) {
+    digitalWrite(8, HIGH);
+    Serial.print("CLOUDY/EVENING SUN HAS SET");
+  }
+  else {
+    digitalWrite(8, LOW);
+    Serial.print("ENOUGH LIGHT/DAY TIME ");
+  }
+  delay(1000);
+}`},
+{id:"6",n:"6",t:"Distance measurement with reverse-parking warning (ultrasonic)",p:"HC-SR04: VCC → 5V, TRIG → pin 6, ECHO → pin 5, GND → GND. Buzzer and LED (via 220Ω) → pin 2",c:`const int trigPin = 6; // HC-SR04: VCC, TRIG, ECHO, GND
+const int echoPin = 5;
+const int buzzer = 2;
+float new_delay;
+long duration;
+int distance;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(buzzer, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(12);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+  Serial.print("Distance: ");
+  new_delay = (distance * 3) + 30;
+  Serial.print(distance);
+  Serial.println(" cm");
+  if (distance < 50) {
+    digitalWrite(buzzer, HIGH);
+    delay(new_delay);
+    digitalWrite(buzzer, LOW);
+  }
+  else {
+    digitalWrite(buzzer, LOW);
+  }
+  delay(200);
+}`},
+{id:"7",n:"7",t:"Smoke detection with LED and buzzer (MQ2)",p:"MQ2: VCC → 5V, GND → GND, A0 → A0. Green LED → 220Ω → pin 11, Red LED + buzzer → 220Ω → pin 12",c:`int smoke;
+
+void setup() {
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  smoke = analogRead(A0);
+  Serial.println("Smoke Sensor");
+  Serial.println(smoke);
+  delay(1000);
+  if (smoke > 250) {
+    digitalWrite(11, LOW);
+    digitalWrite(12, HIGH);
+    delay(1000);
+    digitalWrite(12, LOW);
+    Serial.println("SMOKE DETECTED ");
+  }
+  else {
+    digitalWrite(11, HIGH);
+    digitalWrite(12, LOW);
+    Serial.println("NO SMOKE ");
+  }
+}`},
+{id:"8",n:"8",t:"Name, USN and college on I2C LCD",p:"LCD I2C: VCC → 5V, GND → GND, SDA → A4, SCL → A5. Library: LiquidCrystal_I2C. Fixed to a 16x2 display and prints once per line instead of repeating in loop()",c:`#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // SDA = A4, SCL = A5
+
+void setup() {
+  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("JACOB S E");        // Name
+  lcd.setCursor(0, 1);
+  lcd.print("1MJ22CS014 MVJ CSE"); // USN + college/dept (scrolls if > 16 chars)
+}
+
+void loop() {
+  // static display, nothing to repeat
+}`},
+{id:"8b",n:"8B",t:"POT value and angle on LCD and Serial Monitor",p:"POT wiper → A0 (ends to 5V and GND). LCD I2C: SDA → A4, SCL → A5",c:`#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// I2C address (usually 0x27) and size (16x2)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+int potValue;  // potentiometer reading
+float angle;   // calculated angle in degrees
+
+void setup() {
+  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+}
+
+void loop() {
+  potValue = analogRead(A0);
+  // Convert to angle (0 to 315 degrees)
+  angle = (float)potValue * 315.0 / 1023.0;
+
+  // Serial Monitor
+  Serial.print("Potentiometer value: ");
+  Serial.println(potValue);
+  Serial.print("Angle: ");
+  Serial.print(angle);
+  Serial.println(" degrees");
+
+  // LCD
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Pot Val:");
+  lcd.print(potValue);
+  lcd.setCursor(0, 1);
+  lcd.print("Angle:");
+  lcd.print(angle, 1);      // 1 decimal place
+  lcd.print((char)223);     // degree symbol
+  delay(500);
+}`},
+{id:"9",n:"9",t:"Temperature and humidity on I2C LCD (DHT11)",p:"DHT11 data → pin 8, VCC → 5V, GND → GND. LCD: SDA → A4, SCL → A5. Install \"DHT sensor library\" by Adafruit",c:`#include <DHT.h>
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // SDA = A4, SCL = A5
+
+#define DHTPIN 8      // data pin
+#define DHTTYPE DHT11 // DHT 11
+DHT dht(DHTPIN, DHTTYPE);
+
+int h; // humidity
+int t; // temperature
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Temperature and Humidity Sensor Test");
+  dht.begin();
+  lcd.init();
+  lcd.backlight();
+}
+
+void loop() {
+  h = dht.readHumidity();
+  t = dht.readTemperature();
+
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print(" %, Temp: ");
+  Serial.print(t);
+  Serial.println(" Celsius");
+
+  lcd.setCursor(0, 0);
+  lcd.print(" Now Temperature ");
+  lcd.setCursor(0, 1);
+  lcd.print("T:");
+  lcd.print(t);
+  lcd.print("C");
+  lcd.setCursor(6, 1);
+  lcd.print("2025 ");
+  lcd.setCursor(11, 1);
+  lcd.print("H:");
+  lcd.print(h);
+  lcd.print("%");
+  delay(1000);
+}`},
+{id:"10",n:"10",t:"Soil moisture: automatic sprinkler (dry, moist, fully wet)",p:"Soil sensor module: VCC → 5V, GND → GND, A0 → A0. LEDs → 220Ω: Red (dry) → pin 2, Yellow (moist) → pin 3, Green (wet) → pin 4. Added a last else for readings between the ranges",c:`int sensor_pin = A0; // soil sensor: A0, D0, GND, VCC
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(sensor_pin, INPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+}
+
+void loop() {
+  int sensor_data = analogRead(sensor_pin);
+  Serial.println(sensor_data);
+
+  if (sensor_data >= 1000) {
+    digitalWrite(2, HIGH);
+    digitalWrite(3, LOW);
+    digitalWrite(4, LOW);
+    Serial.println("No moisture Soil is dry");
+    delay(1000);
+  }
+  else if (sensor_data <= 700 && sensor_data >= 630) {
+    digitalWrite(2, LOW);
+    digitalWrite(3, HIGH);
+    digitalWrite(4, LOW);
+    Serial.println("There is some moisture, Soil is medium");
+    delay(1000);
+  }
+  else if (sensor_data <= 600) {
+    digitalWrite(2, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(4, HIGH);
+    Serial.println("Soil is wet");
+    delay(1000);
+  }
+  else {
+    Serial.println("Moisture level in between, reading again");
+    delay(1000);
+  }
+}`}
+];
+
+
+const g=document.getElementById('grid');
+E.forEach(e=>{
+  const b=document.createElement('button');b.type='button';
+  b.textContent=e.n;b.setAttribute('aria-label','Copy code for experiment '+e.n);
+  b.onclick=async()=>{
+    try{await navigator.clipboard.writeText(e.c)}catch(_){
+      const t=document.createElement('textarea');t.value=e.c;document.body.appendChild(t);t.select();
+      try{document.execCommand('copy')}catch(__){}t.remove();
     }
-}
-
-
-
-APPLICATION PROPERTIES
-spring.application.name=lab
-spring.datasource.url=jdbc:h2:mem:testdb
-spring.datasource.driverClassName=org.h2.Driver
-spring.datasource.username=sa
-spring.datasource.password=
-L
-spring.h2.console.enabled=true
-
-spring.jpa.hibernate.ddl-auto=update
-
-spring.jpa.show-sql=true
-server.port=8089
-
-</textarea>
+    b.textContent='Copied';b.classList.add('done');
+    setTimeout(()=>{b.textContent=e.n;b.classList.remove('done')},1200);
+  };
+  g.appendChild(b);
+});
+</script>
 </body>
 </html>
